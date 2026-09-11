@@ -30,7 +30,14 @@ async function join() {
       body: JSON.stringify({ name })
     });
 
-    if (!response.ok) throw new Error('join failed');
+    if (response.status === 409) {
+      toast('Ya existe un jugador con ese nombre.');
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error('join failed');
+    }
 
     me = await response.json();
     localStorage.setItem('kindGamePlayerId', me.id);

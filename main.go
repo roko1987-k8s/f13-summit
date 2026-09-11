@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -82,6 +83,32 @@ func randomName() string {
 }
 
 // ----------------------------------------------------
+// NORMALIZAR NOMBRE
+// ----------------------------------------------------
+
+func normalizeName(name string) string {
+	return strings.ToLower(
+		strings.TrimSpace(name),
+	)
+}
+
+// ----------------------------------------------------
+// VERIFICAR SI EL NOMBRE YA EXISTE
+// ----------------------------------------------------
+
+func (s *Server) nameExists(name string) bool {
+	normalized := normalizeName(name)
+
+	for _, player := range s.players {
+		if normalizeName(player.Name) == normalized {
+			return true
+		}
+	}
+
+	return false
+}
+
+// ----------------------------------------------------
 // SNAPSHOT
 // ----------------------------------------------------
 
@@ -141,7 +168,6 @@ func (s *Server) broadcast() {
 	defer s.mu.RUnlock()
 
 	for client := range s.clients {
-
 		select {
 		case client <- message:
 		default:
@@ -172,17 +198,55 @@ func (s *Server) join(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.NewDecoder(r.Body).Decode(&request)
 
-	name := request.Name
+	name := strings.TrimSpace(request.Name)
 
-	// Si no colocó nombre → aleatorio.
+	// ------------------------------------------------
+	// NOMBRE ALEATORIO
+	// ------------------------------------------------
+
 	if name == "" {
-		name = randomName()
+
+		// Generar hasta encontrar uno disponible.
+		for {
+			candidate := randomName()
+
+			s.mu.RLock()
+			exists := s.nameExists(candidate)
+			s.mu.RUnlock()
+
+			if !exists {
+				name = candidate
+				break
+			}
+		}
 	}
 
 	// Limitar nombre.
 	if len(name) > 20 {
 		name = name[:20]
 	}
+
+	// ------------------------------------------------
+	// VALIDAR NOMBRE DUPLICADO
+	// ------------------------------------------------
+
+	s.mu.Lock()
+
+	if s.nameExists(name) {
+		s.mu.Unlock()
+
+		http.Error(
+			w,
+			"name already exists",
+			http.StatusConflict,
+		)
+
+		return
+	}
+
+	// ------------------------------------------------
+	// CREAR JUGADOR
+	// ------------------------------------------------
 
 	player := &Player{
 		ID:       newID(),
@@ -191,8 +255,6 @@ func (s *Server) join(w http.ResponseWriter, r *http.Request) {
 		JoinedAt: time.Now().UnixMilli(),
 		Online:   true,
 	}
-
-	s.mu.Lock()
 
 	s.players[player.ID] = player
 
@@ -228,7 +290,7 @@ func (s *Server) score(w http.ResponseWriter, r *http.Request) {
 
 	gameRunning :=
 		s.game.Status == "running" &&
-		now.UnixMilli() < s.game.EndsAt
+			now.UnixMilli() < s.game.EndsAt
 
 	if !exists {
 		s.mu.Unlock()
