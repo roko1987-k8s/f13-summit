@@ -1,0 +1,1217 @@
+/* =========================================================
+   F13 CODE SUMMIT — KIND GAME
+   Mobile-first stylesheet
+   ========================================================= */
+
+:root {
+  --lime: #c8ff28;
+  --lime-dark: #94c91c;
+  --ink: #080d0b;
+  --green: #0d2115;
+  --white: #f7ffe9;
+  --muted: #4e682f;
+  --line: rgba(8, 13, 11, .18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+}
+
+body {
+  background: var(--lime);
+  color: var(--ink);
+  font-family: "Courier New", monospace;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  overflow-x: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, .08) 25%,
+      transparent 25%
+    ) 0 0 / 28px 28px,
+    var(--lime);
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: .07;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      #000 4px
+    );
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.event-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 18px;
+  align-items: center;
+  padding: 18px 26px 14px;
+  border-bottom: 3px solid var(--ink);
+  flex-shrink: 0;
+}
+
+.f13-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+
+.f13-mark {
+  font-weight: 900;
+  font-size: clamp(52px, 8vw, 92px);
+  letter-spacing: -8px;
+  line-height: .7;
+  flex-shrink: 0;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: .95;
+}
+
+.brand-copy strong {
+  font-size: clamp(20px, 3vw, 35px);
+}
+
+.brand-copy span {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.event-copy {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.event-copy strong {
+  font-size: 16px;
+}
+
+.event-copy small {
+  display: block;
+  margin-top: 10px;
+  line-height: 1.45;
+}
+
+.utec {
+  text-align: left;
+  font-size: 20px;
+  font-weight: 900;
+  border-left: 2px solid var(--ink);
+  padding-left: 15px;
+}
+
+.utec span {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* =========================================================
+   MAIN / SCREENS
+   ========================================================= */
+
+main {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.screen {
+  width: min(100%, 980px);
+  padding: 24px;
+  min-width: 0;
+}
+
+/* =========================================================
+   JOIN SCREEN
+   ========================================================= */
+
+.join-screen {
+  width: min(100%, 620px);
+  text-align: center;
+  margin: auto;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  opacity: .65;
+}
+
+.join-screen h1,
+.host-screen h1 {
+  font-size: clamp(28px, 7vw, 54px);
+  line-height: .95;
+  margin: 13px 0;
+  letter-spacing: -2px;
+}
+
+.join-screen p {
+  margin: 0 auto 22px;
+  max-width: 440px;
+  line-height: 1.35;
+}
+
+#name {
+  width: 100%;
+  height: 58px;
+  border: 3px solid var(--ink);
+  background: rgba(255, 255, 255, .28);
+  padding: 0 16px;
+  outline: none;
+  font-size: 18px;
+  border-radius: 10px;
+}
+
+#name:focus {
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.join-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+button {
+  border: 3px solid var(--ink);
+  border-radius: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.secondary,
+.primary {
+  min-height: 55px;
+}
+
+.secondary {
+  background: #2f5ee8;
+  color: white;
+}
+
+.primary {
+  background: var(--ink);
+  color: var(--lime);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(3px);
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.joined {
+  margin-top: 14px;
+  font-weight: 900;
+}
+
+.join-note {
+  margin-top: 20px;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: .7;
+}
+
+/* =========================================================
+   GAME SCREEN
+   ========================================================= */
+
+.game-screen {
+  width: min(100%, 720px);
+  padding: 14px 12px 22px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.hud {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.2fr .8fr .8fr;
+  background: var(--ink);
+  color: var(--white);
+  border-radius: 14px;
+  border: 3px solid var(--ink);
+  overflow: hidden;
+}
+
+.hud div {
+  padding: 11px 10px;
+  text-align: center;
+  border-right: 1px solid #455142;
+  min-width: 0;
+}
+
+.hud div:last-child {
+  border: 0;
+}
+
+.hud span {
+  display: block;
+  font-size: 9px;
+  opacity: .65;
+}
+
+.hud b {
+  display: block;
+  margin-top: 5px;
+  color: var(--lime);
+  font-size: clamp(18px, 5vw, 30px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-message {
+  width: min(100%, 520px);
+  text-align: center;
+  padding: 12px 15px;
+}
+
+.status-message strong {
+  display: block;
+  font-size: 18px;
+}
+
+.status-message small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: .7;
+}
+
+/* =========================================================
+   ARENA
+   ========================================================= */
+
+.arena {
+  position: relative;
+  width: 100%;
+  height: clamp(360px, 63svh, 610px);
+  min-height: 340px;
+  overflow: hidden;
+  border: 4px solid var(--ink);
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      #c8ff28 0 70%,
+      #9ee221 70% 100%
+    );
+  box-shadow: 8px 8px 0 rgba(8, 13, 11, .15);
+  flex-shrink: 0;
+}
+
+.arena::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 17%;
+  background:
+    linear-gradient(
+      #2c7b2d 0 13%,
+      #174e24 13% 100%
+    );
+  clip-path: polygon(
+    0 45%,
+    8% 28%,
+    16% 42%,
+    25% 20%,
+    35% 40%,
+    47% 14%,
+    58% 42%,
+    69% 22%,
+    81% 40%,
+    92% 18%,
+    100% 42%,
+    100% 100%,
+    0 100%
+  );
+}
+
+.sun {
+  position: absolute;
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  right: 9%;
+  top: 8%;
+  background: #f5b915;
+  box-shadow: 0 0 0 8px rgba(245, 185, 21, .18);
+}
+
+.cloud {
+  position: absolute;
+  font-size: 48px;
+  opacity: .45;
+}
+
+.cloud-a {
+  top: 16%;
+  left: 7%;
+}
+
+.cloud-b {
+  top: 30%;
+  right: 4%;
+}
+
+.tech-ball {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 900;
+  font-size: 24px;
+  box-shadow: 4px 5px 0 rgba(0, 0, 0, .14);
+  z-index: 4;
+  overflow: hidden;
+}
+
+.k8s {
+  left: 7%;
+  top: 29%;
+  background: #2869ee;
+}
+
+.code {
+  left: 12%;
+  bottom: 20%;
+  background: #7624ed;
+  font-size: 16px;
+}
+
+.cloud-ball {
+  right: 9%;
+  top: 38%;
+  background: #f27818;
+}
+
+.server {
+  right: 14%;
+  bottom: 21%;
+  background: #12ad99;
+}
+
+.tech-ball img {
+  width: 68%;
+  height: 68%;
+  max-width: 68%;
+  max-height: 68%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.mascot {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+  width: 105px;
+  height: 120px;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  overflow: hidden;
+}
+
+.mascot img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.motion {
+  position: absolute;
+  width: 95px;
+  height: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .7);
+  left: 24%;
+  top: 54%;
+  transform: rotate(-8deg);
+  z-index: 6;
+  opacity: .8;
+}
+
+.motion-2 {
+  left: 29%;
+  top: 59%;
+  width: 60px;
+}
+
+.grass {
+  position: absolute;
+  width: 35px;
+  height: 18px;
+  border-top: 5px solid #287e2d;
+  border-radius: 50%;
+  z-index: 3;
+}
+
+.grass-1 {
+  left: 25%;
+  bottom: 20%;
+}
+
+.grass-2 {
+  right: 29%;
+  bottom: 30%;
+}
+
+.rock {
+  position: absolute;
+  width: 40px;
+  height: 25px;
+  background: #77705c;
+  border: 4px solid var(--ink);
+  border-radius: 60% 40% 20% 20%;
+  z-index: 4;
+}
+
+.rock-1 {
+  left: 8%;
+  bottom: 16%;
+}
+
+.rock-2 {
+  right: 6%;
+  bottom: 14%;
+}
+
+/* =========================================================
+   TAP BUTTON
+   ========================================================= */
+
+.tap-button {
+  width: min(82vw, 320px);
+  min-height: 118px;
+  margin-top: -30px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--lime);
+  box-shadow:
+    0 0 0 9px rgba(200, 255, 40, .65),
+    0 10px 0 rgba(8, 13, 11, .22);
+  user-select: none;
+}
+
+.tap-button:active:not(:disabled) {
+  transform: scale(.95);
+  box-shadow:
+    0 0 0 7px rgba(200, 255, 40, .5);
+}
+
+.bolt {
+  font-size: 40px;
+  line-height: .9;
+  filter: drop-shadow(0 0 8px var(--lime));
+}
+
+.tap-title {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.tap-subtitle {
+  font-size: 10px;
+  opacity: .85;
+}
+
+.game-tip {
+  margin-top: 13px;
+  font-size: 10px;
+  font-weight: 900;
+  text-align: center;
+  opacity: .65;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+.dash {
+  animation: dash .28s ease-out;
+}
+
+.spin {
+  animation: spin .52s cubic-bezier(.2, .8, .2, 1);
+}
+
+@keyframes dash {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  45% {
+    transform:
+      translate(
+        calc(-50% + var(--jump-x)),
+        -65%
+      )
+      rotate(-12deg)
+      scale(1.08);
+  }
+
+  100% {
+    transform:
+      translate(-50%, -50%)
+      rotate(0)
+      scale(1);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform:
+      translate(-50%, -50%)
+      rotate(0)
+      scale(1);
+  }
+
+  100% {
+    transform:
+      translate(-50%, -50%)
+      rotate(720deg)
+      scale(1.04);
+  }
+}
+
+.tap-pop {
+  position: fixed;
+  z-index: 2000;
+  pointer-events: none;
+  color: var(--ink);
+  font-weight: 900;
+  font-size: 24px;
+  animation: pop .6s ease-out forwards;
+}
+
+@keyframes pop {
+  from {
+    transform: translateY(0) scale(.7);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(-65px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* =========================================================
+   HOST
+   ========================================================= */
+
+.host-screen {
+  max-width: 1100px;
+  width: 100%;
+}
+
+.host-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: end;
+}
+
+.host-online {
+  background: var(--ink);
+  color: var(--lime);
+  padding: 13px 17px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #34e36c;
+  margin-right: 7px;
+}
+
+.host-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.host-card {
+  background: rgba(255, 255, 255, .28);
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.control-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 360px;
+}
+
+.control-card p {
+  line-height: 1.45;
+}
+
+.host-start {
+  min-height: 85px;
+  background: var(--ink);
+  color: var(--lime);
+  font-size: 28px;
+}
+
+.host-reset {
+  margin-top: 10px;
+  min-height: 45px;
+  background: transparent;
+}
+
+.control-card #hostStatus {
+  margin-top: 15px;
+  font-weight: 900;
+  text-align: center;
+  font-size: 13px;
+}
+
+.board-card h2 {
+  margin-top: 0;
+}
+
+.leader-row {
+  display: grid;
+  grid-template-columns: 35px 45px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 8px;
+  border-bottom: 2px solid var(--line);
+}
+
+.rank {
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.mini-go {
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: #20a9d8;
+  display: grid;
+  place-items: center;
+  color: white;
+}
+
+.mini-go i {
+  font-style: normal;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.leader-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leader-row strong {
+  font-size: 22px;
+}
+
+.empty-board {
+  opacity: .55;
+  padding: 30px;
+  text-align: center;
+}
+
+.host-footer {
+  margin-top: 15px;
+  font-size: 11px;
+  opacity: .7;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.event-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px 22px;
+  border-top: 3px solid var(--ink);
+  font-size: 10px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 20px);
+  background: var(--ink);
+  color: var(--lime);
+  border: 2px solid var(--lime);
+  padding: 12px 15px;
+  border-radius: 9px;
+  z-index: 3000;
+  opacity: 0;
+  pointer-events: none;
+  transition: .2s;
+  font-size: 12px;
+  text-align: center;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* =========================================================
+   TABLET / MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .event-header {
+    grid-template-columns: 1fr auto;
+    padding: 12px 12px 9px;
+    gap: 8px;
+  }
+
+  .event-copy {
+    display: none;
+  }
+
+  .utec {
+    font-size: 14px;
+    border: 0;
+    padding: 0;
+  }
+
+  .utec span {
+    font-size: 10px;
+  }
+
+  .f13-mark {
+    font-size: 48px;
+    letter-spacing: -6px;
+  }
+
+  .brand-copy strong {
+    font-size: 16px;
+  }
+
+  .brand-copy span {
+    font-size: 8px;
+    margin-top: 4px;
+  }
+
+  .screen {
+    width: 100%;
+    max-width: 100%;
+    padding: 14px 10px;
+  }
+
+  /* JOIN IS A TRUE MOBILE SCREEN */
+  .join-screen {
+    width: 100%;
+    max-width: 430px;
+    padding: 32px 18px 28px;
+    margin: 0 auto;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .join-screen h1 {
+    font-size: clamp(32px, 10vw, 44px);
+    margin: 14px 0;
+    overflow-wrap: anywhere;
+  }
+
+  .join-screen p {
+    max-width: 340px;
+    margin-bottom: 20px;
+  }
+
+  #name {
+    height: 54px;
+    font-size: 16px;
+  }
+
+  .join-actions {
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .secondary,
+  .primary {
+    width: 100%;
+    min-height: 54px;
+  }
+
+  .join-note {
+    max-width: 330px;
+    margin: 18px auto 0;
+  }
+
+  /* GAME */
+  .game-screen {
+    width: 100%;
+    max-width: 430px;
+    padding: 10px 8px 18px;
+  }
+
+  .hud {
+    border-radius: 12px;
+  }
+
+  .hud div {
+    padding: 9px 6px;
+  }
+
+  .hud span {
+    font-size: 8px;
+  }
+
+  .hud b {
+    font-size: clamp(16px, 5vw, 22px);
+  }
+
+  .status-message {
+    padding: 10px 8px;
+  }
+
+  .status-message strong {
+    font-size: 16px;
+  }
+
+  .status-message small {
+    font-size: 10px;
+  }
+
+  .arena {
+    width: 100%;
+    height: min(56svh, 470px);
+    min-height: 315px;
+    border-width: 3px;
+    border-radius: 16px;
+  }
+
+  .sun {
+    width: 68px;
+    height: 68px;
+  }
+
+  .cloud {
+    font-size: 38px;
+  }
+
+  .tech-ball {
+    width: 60px;
+    height: 60px;
+    border-width: 3px;
+    box-shadow: 3px 4px 0 rgba(0, 0, 0, .14);
+  }
+
+  .k8s {
+    left: 6%;
+    top: 29%;
+  }
+
+  .code {
+    left: 10%;
+    bottom: 20%;
+  }
+
+  .cloud-ball {
+    right: 7%;
+    top: 38%;
+  }
+
+  .server {
+    right: 11%;
+    bottom: 20%;
+  }
+
+  .tech-ball img {
+    width: 68%;
+    height: 68%;
+    max-width: 68%;
+    max-height: 68%;
+  }
+
+  .mascot {
+    width: 92px;
+    height: 105px;
+    top: 49%;
+  }
+
+  .motion {
+    width: 72px;
+    height: 6px;
+    left: 23%;
+  }
+
+  .motion-2 {
+    width: 45px;
+    left: 29%;
+  }
+
+  .rock {
+    width: 34px;
+    height: 22px;
+    border-width: 3px;
+  }
+
+  .tap-button {
+    width: min(78vw, 300px);
+    min-height: 108px;
+    margin-top: -26px;
+    border-width: 4px;
+  }
+
+  .bolt {
+    font-size: 36px;
+  }
+
+  .tap-title {
+    font-size: 12px;
+  }
+
+  .tap-subtitle {
+    font-size: 9px;
+  }
+
+  .game-tip {
+    margin-top: 11px;
+    font-size: 9px;
+  }
+
+  /* HOST */
+  .host-top {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .host-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-card {
+    min-height: auto;
+  }
+
+  .host-start {
+    min-height: 70px;
+  }
+
+  /* FOOTER */
+  .event-footer {
+    flex-direction: column;
+    text-align: center;
+    padding: 9px 8px;
+    gap: 4px;
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 390px) {
+
+  .event-header {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .f13-mark {
+    font-size: 43px;
+  }
+
+  .brand-copy strong {
+    font-size: 14px;
+  }
+
+  .utec {
+    font-size: 12px;
+  }
+
+  .utec span {
+    font-size: 9px;
+  }
+
+  .join-screen {
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-top: 24px;
+  }
+
+  .join-screen h1 {
+    font-size: 31px;
+  }
+
+  .join-screen p {
+    font-size: 13px;
+  }
+
+  .arena {
+    height: 48svh;
+    min-height: 300px;
+  }
+
+  .tech-ball {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mascot {
+    width: 82px;
+    height: 96px;
+  }
+
+  .hud b {
+    font-size: 16px;
+  }
+
+  .status-message strong {
+    font-size: 14px;
+  }
+
+  .tap-button {
+    width: 74vw;
+    min-height: 100px;
+  }
+
+  .bolt {
+    font-size: 32px;
+  }
+}
+
+/* =========================================================
+   VERY SHORT PHONES
+   ========================================================= */
+
+@media (max-height: 700px) and (max-width: 700px) {
+
+  .event-header {
+    padding-top: 8px;
+    padding-bottom: 6px;
+  }
+
+  .f13-mark {
+    font-size: 40px;
+  }
+
+  .join-screen {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .join-screen h1 {
+    margin: 9px 0;
+  }
+
+  .join-screen p {
+    margin-bottom: 13px;
+  }
+
+  .join-note {
+    margin-top: 12px;
+  }
+
+  .arena {
+    height: 45svh;
+    min-height: 280px;
+  }
+
+  .status-message {
+    padding: 7px;
+  }
+
+  .tap-button {
+    min-height: 90px;
+    margin-top: -22px;
+  }
+
+  .event-footer {
+    display: none;
+  }
+}

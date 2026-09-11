@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"
+  >
+  <meta name="theme-color" content="#c8ff28">
+  <title>F13 Code Summit — Tap Game</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+  <div class="scanlines"></div>
+
+  <div class="page">
+
+    <!-- =========================
+         HEADER
+         ========================= -->
+    <header class="event-header">
+
+      <div class="f13-brand">
+        <div class="f13-mark">F13</div>
+
+        <div class="brand-copy">
+          <strong>CODE<br>SUMMIT</strong>
+          <span>2nd EDITION</span>
+        </div>
+      </div>
+
+      <div class="event-copy">
+        <strong>
+          3L 3V3NTO P4R4<br>
+          D3S4RROLL4DOR3S QU3<br>
+          CONSTRUY3N 3L FUTURO
+        </strong>
+
+        <small>
+          Sáb 12 Sep · 1:00–6:30 pm<br>
+          Dom 13 Sep · 8:00 am–6:30 pm<br>
+          2026 · Lima, Perú
+        </small>
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN
+         ========================= -->
+    <main>
+
+      <!-- =========================
+           JOIN SCREEN
+           ========================= -->
+      <section id="joinScreen" class="screen join-screen">
+
+        <div class="eyebrow">
+          F13 CODE SUMMIT · MINI GAME
+        </div>
+
+        <h1>¡LISTO PARA JUGAR?</h1>
+
+        <p>
+          Escribe tu nombre o deja que el cluster te asigne uno.
+        </p>
+
+        <input
+          id="name"
+          maxlength="20"
+          autocomplete="nickname"
+          placeholder="Tu nombre..."
+        >
+
+        <div class="join-actions">
+
+          <button id="randomBtn" class="secondary">
+            🎲 NOMBRE ALEATORIO
+          </button>
+
+          <button id="joinBtn" class="primary">
+            ENTRAR AL JUEGO
+          </button>
+
+        </div>
+
+        <div id="joined" class="joined hidden"></div>
+
+        <div class="join-note">
+          Después de entrar, espera a que el host presione
+          <b>START</b>.
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           GAME SCREEN
+           ========================= -->
+      <section id="gameScreen" class="screen game-screen hidden">
+
+        <!-- HUD -->
+        <div class="hud">
+
+          <div>
+            <span>JUGADOR</span>
+            <b id="playerName">—</b>
+          </div>
+
+          <div>
+            <span>PUNTAJE</span>
+            <b id="score">0</b>
+          </div>
+
+          <div>
+            <span>TIEMPO</span>
+            <b id="timer">—</b>
+          </div>
+
+        </div>
+
+
+        <!-- STATUS -->
+        <div id="statusMessage" class="status-message">
+
+          <strong>ESPERANDO AL HOST</strong>
+
+          <small>
+            El juego comenzará para todos al mismo tiempo.
+          </small>
+
+        </div>
+
+
+        <!-- =========================
+             ARENA
+             ========================= -->
+        <div id="arena" class="arena">
+
+          <div class="sun"></div>
+
+          <div class="cloud cloud-a">☁</div>
+          <div class="cloud cloud-b">☁</div>
+
+
+          <!-- Kubernetes -->
+          <div class="tech-ball k8s">
+            <img
+              src="/assets/k8s.png"
+              alt="Kubernetes"
+            >
+          </div>
+
+
+          <!-- CNCF -->
+          <div class="tech-ball code">
+            <img
+              src="/assets/cncf.png"
+              alt="CNCF"
+            >
+          </div>
+
+
+          <!-- Cloud -->
+          <div class="tech-ball cloud-ball">
+            ☁
+          </div>
+
+
+          <!-- Server -->
+          <div class="tech-ball server">
+            ▤
+          </div>
+
+
+          <!-- Go Gopher -->
+          <div
+            class="mascot"
+            id="gopher"
+            aria-label="Go mascot"
+          >
+            <img
+              src="/assets/golang.png"
+              alt="Go Gopher"
+            >
+          </div>
+
+
+          <!-- Motion -->
+          <div class="motion motion-1"></div>
+          <div class="motion motion-2"></div>
+
+
+          <!-- Grass -->
+          <div class="grass grass-1"></div>
+          <div class="grass grass-2"></div>
+
+
+          <!-- Rocks -->
+          <div class="rock rock-1"></div>
+          <div class="rock rock-2"></div>
+
+        </div>
+
+
+        <!-- =========================
+             TAP BUTTON
+             ========================= -->
+        <button
+          id="tapButton"
+          class="tap-button"
+          aria-label="Impulsar y sumar un punto"
+        >
+
+          <span class="bolt">⚡</span>
+
+          <span class="tap-title">
+            TOCA PARA IMPULSAR
+          </span>
+
+          <span class="tap-subtitle">
+            Cada toque = +1 punto
+          </span>
+
+        </button>
+
+
+        <div class="game-tip">
+          ¡TOCA RÁPIDO! · MÁS TOQUES = MÁS PUNTOS
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           HOST SCREEN
+           ========================= -->
+      <section id="hostScreen" class="screen host-screen hidden">
+
+        <div class="host-top">
+
+          <div>
+
+            <div class="eyebrow">
+              F13 CODE SUMMIT · HOST
+            </div>
+
+            <h1>
+              CONTROL DEL JUEGO
+            </h1>
+
+          </div>
+
+
+          <div class="host-online">
+
+            <span class="dot"></span>
+
+            <b id="onlineCount">0</b>
+            JUGADORES
+
+          </div>
+
+        </div>
+
+
+        <div class="host-grid">
+
+          <!-- CONTROL -->
+          <div class="host-card control-card">
+
+            <p>
+              Todos los celulares conectados recibirán
+              el inicio al mismo tiempo.
+            </p>
+
+            <button
+              id="startBtn"
+              class="host-start"
+            >
+              START GAME
+            </button>
+
+            <button
+              id="resetBtn"
+              class="host-reset"
+            >
+              RESET
+            </button>
+
+            <div id="hostStatus">
+              LOBBY
+            </div>
+
+          </div>
+
+
+          <!-- TOP 5 -->
+          <div class="host-card board-card">
+
+            <h2>
+              🏆 TOP 5
+            </h2>
+
+            <div id="top"></div>
+
+          </div>
+
+        </div>
+
+
+        <div class="host-footer">
+
+          Escanea el QR desde el teléfono de los participantes ·
+          <span id="gameUrl"></span>
+
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+    <footer class="event-footer">
+
+      <div>
+        <b>BUILD · LEARN · CONNECT · THE FUTURE</b>
+      </div>
+
+      <div>
+        F13 CODE SUMMIT · LIMA, PERÚ · 2026
+      </div>
+
+    </footer>
+
+  </div>
+
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+
+  <script src="/app.js"></script>
+
+</body>
+</html>
