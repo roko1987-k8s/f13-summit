@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: vvvv
+  namespace: vvvv
+spec:
+  hosts:
+    - vvvv
+  http:
+    - route:
+        - destination:
+            host: vvvv
+            port:
+              number: 443
