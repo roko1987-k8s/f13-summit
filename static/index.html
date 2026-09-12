@@ -6,14 +6,16 @@
     name="viewport"
     content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"
   >
-  <meta name="theme-color" content="#c8ff28">
+  <meta name="theme-color" content="#c7f241">
   <title>F13 Code Summit — Tap Game</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preload" href="/fonts/SpaceMono-Bold.otf" as="font" type="font/otf" crossorigin>
+  <link rel="preload" href="/fonts/SpaceGrotesk-Medium.otf" as="font" type="font/otf" crossorigin>
+  <!-- ?v= fuerza la descarga tras un cambio; súbelo al desplegar. -->
+  <link rel="stylesheet" href="/style.css?v=20260911i">
 </head>
 
 <body>
-
-  <div class="scanlines"></div>
 
   <div class="page">
 
@@ -22,28 +24,36 @@
          ========================= -->
     <header class="event-header">
 
-      <div class="f13-brand">
-        <div class="f13-mark">F13</div>
-
-        <div class="brand-copy">
-          <strong>CODE<br>SUMMIT</strong>
-          <span>2nd EDITION</span>
-        </div>
-      </div>
+      <a href="https://www.f13.pe/" target="_blank" rel="noopener">
+        <img
+          class="f13-logo"
+          src="/assets/f13-logo.png"
+          alt="F13 Code Summit · 2nd edition"
+        >
+      </a>
 
       <div class="event-copy">
         <strong>
-          3L 3V3NTO P4R4<br>
-          D3S4RROLL4DOR3S QU3<br>
-          CONSTRUY3N 3L FUTURO
+          3L 3V3NTO P4R4 D3S4RROLL4DOR3S<br>
+          QU3 CONSTRUY3N 3L FUTURO
         </strong>
 
         <small>
-          Sáb 12 Sep · 1:00–6:30 pm<br>
-          Dom 13 Sep · 8:00 am–6:30 pm<br>
-          2026 · Lima, Perú
+          Sáb 12 Sep · 1:00–6:30 pm · Dom 13 Sep · 8:00 am–6:30 pm<br>
+          2026 · UTEC · Lima, Perú
         </small>
       </div>
+
+      <!-- Solo en modo host: QR para que los asistentes entren. -->
+      <div id="hostQr" class="host-qr hidden">
+        <img id="qr" class="qr" alt="QR para unirse al juego">
+        <div>
+          <b>ESCANEA PARA JUGAR</b>
+          <span id="gameUrl"></span>
+        </div>
+      </div>
+
+      <span class="pill">MINI G4M3</span>
 
     </header>
 
@@ -71,7 +81,7 @@
         <input
           id="name"
           maxlength="20"
-          autocomplete="nickname"
+          autocomplete="off"
           placeholder="Tu nombre..."
         >
 
@@ -86,8 +96,6 @@
           </button>
 
         </div>
-
-        <div id="joined" class="joined hidden"></div>
 
         <div class="join-note">
           Después de entrar, espera a que el host presione
@@ -138,99 +146,58 @@
         <!-- =========================
              ARENA
              ========================= -->
-        <div id="arena" class="arena">
+        <!-- =========================
+             TAP BUTTON (con las mascotas a los lados)
+             ========================= -->
+        <div class="tap-row">
 
-          <div class="sun"></div>
-
-          <div class="cloud cloud-a">☁</div>
-          <div class="cloud cloud-b">☁</div>
-
-
-          <!-- Kubernetes -->
-          <div class="tech-ball k8s">
-            <img
-              src="/assets/k8s.png"
-              alt="Kubernetes"
-            >
-          </div>
-
-
-          <!-- CNCF -->
-          <div class="tech-ball code">
-            <img
-              src="/assets/cncf.png"
-              alt="CNCF"
-            >
-          </div>
-
-
-          <!-- Cloud -->
-          <div class="tech-ball cloud-ball">
-            ☁
-          </div>
-
-
-          <!-- Server -->
-          <div class="tech-ball server">
-            ▤
-          </div>
-
-
-          <!-- Go Gopher -->
-          <div
-            class="mascot"
-            id="gopher"
-            aria-label="Go mascot"
+          <img
+            id="mascotLeft"
+            class="mascot mascot-left"
+            src="/assets/argi.png"
+            alt="Pulpo astronauta"
           >
-            <img
-              src="/assets/golang.png"
-              alt="Go Gopher"
-            >
-          </div>
 
+          <button
+            id="tapButton"
+            class="tap-button"
+            aria-label="Escalar y sumar un punto"
+          >
 
-          <!-- Motion -->
-          <div class="motion motion-1"></div>
-          <div class="motion motion-2"></div>
+            <span class="bolt">⚡</span>
 
+            <span class="tap-title">
+              TOCA PARA ESCALAR
+            </span>
 
-          <!-- Grass -->
-          <div class="grass grass-1"></div>
-          <div class="grass grass-2"></div>
+            <span class="tap-subtitle">
+              Cada toque = +1 punto · 1 request al cluster
+            </span>
 
+          </button>
 
-          <!-- Rocks -->
-          <div class="rock rock-1"></div>
-          <div class="rock rock-2"></div>
+          <img
+            id="mascotRight"
+            class="mascot mascot-right"
+            src="/assets/cappy.png"
+            alt="Tortuga con gorra"
+          >
 
         </div>
-
-
-        <!-- =========================
-             TAP BUTTON
-             ========================= -->
-        <button
-          id="tapButton"
-          class="tap-button"
-          aria-label="Impulsar y sumar un punto"
-        >
-
-          <span class="bolt">⚡</span>
-
-          <span class="tap-title">
-            TOCA PARA IMPULSAR
-          </span>
-
-          <span class="tap-subtitle">
-            Cada toque = +1 punto
-          </span>
-
-        </button>
 
 
         <div class="game-tip">
-          ¡TOCA RÁPIDO! · MÁS TOQUES = MÁS PUNTOS
+          ¡TOCA RÁPIDO! · MÁS TRÁFICO = MÁS PODS
         </div>
+
+
+        <!--
+          Cada toque es una request que entra por el Gateway (kgateway),
+          pasa por el Service y llega a un pod. Un HPA simulado (solo en
+          el cliente) escala las réplicas según las req/s. El contenido
+          lo genera createCluster() en app.js.
+        -->
+        <div id="arena" class="arena cluster"></div>
 
       </section>
 
@@ -242,15 +209,17 @@
 
         <div class="host-top">
 
-          <div>
-
-            <div class="eyebrow">
-              F13 CODE SUMMIT · HOST
-            </div>
+          <div class="host-title">
 
             <h1>
-              CONTROL DEL JUEGO
+              CONTROL PLANE
             </h1>
+
+            <img
+              class="host-mascot"
+              src="/assets/owl.png"
+              alt="Búho con sombrero"
+            >
 
           </div>
 
@@ -260,7 +229,8 @@
             <span class="dot"></span>
 
             <b id="onlineCount">0</b>
-            JUGADORES
+            CONECTADOS
+            <small>· <span id="playerCount">0</span> registrados</small>
 
           </div>
 
@@ -295,6 +265,8 @@
               LOBBY
             </div>
 
+            <div id="hostTimer" class="host-timer">—</div>
+
           </div>
 
 
@@ -309,15 +281,14 @@
 
           </div>
 
-        </div>
 
-
-        <div class="host-footer">
-
-          Escanea el QR desde el teléfono de los participantes ·
-          <span id="gameUrl"></span>
+          <!-- CLUSTER: tráfico de toda la sala (lo genera createCluster) -->
+          <div class="host-card cluster-card">
+            <div id="hostCluster" class="arena cluster host-cluster"></div>
+          </div>
 
         </div>
+
 
       </section>
 
@@ -330,11 +301,11 @@
     <footer class="event-footer">
 
       <div>
-        <b>BUILD · LEARN · CONNECT · THE FUTURE</b>
+        <b>BUILD · L34RN · CONN3CT · TH3 FUTUR3</b>
       </div>
 
       <div>
-        F13 CODE SUMMIT · LIMA, PERÚ · 2026
+        F13 CODE SUMMIT · 2ND EDITION · LIMA, PERÚ · 2026
       </div>
 
     </footer>
@@ -346,7 +317,7 @@
   <div id="toast" class="toast"></div>
 
 
-  <script src="/app.js"></script>
+  <script src="/app.js?v=20260911f"></script>
 
 </body>
 </html>
