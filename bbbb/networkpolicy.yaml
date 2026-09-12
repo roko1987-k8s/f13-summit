@@ -1,0 +1,11 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: bbbb
+spec:
+  podSelector:
+    matchLabels:
+      app: bbbb
+  policyTypes:
+    - Ingress
+    - Egress
