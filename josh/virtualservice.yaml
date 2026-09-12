@@ -1,0 +1,75 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: josh
+  namespace: josh
+spec:
+  hosts:
+    - josh
+  http:
+    - route:
+        - destination:
+            host: josh
+            port:
+              number: 443
+
+
+      timeout: 5s
+
+    # API principal
+    - match:
+        - uri:
+            prefix: /api/orders
+
+      headers:
+        request:
+          set:
+            x-platform-service: orders-api
+            x-request-source: istio
+        response:
+          set:
+            x-content-type-options: nosniff
+            x-frame-options: DENY
+            referrer-policy: strict-origin-when-cross-origin
+      corsPolicy:
+        allowOrigins:
+          - exact: https://app.example.com
+        allowMethods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        allowHeaders:
+          - authorization
+          - content-type
+          - x-request-id
+        exposeHeaders:
+          - x-request-id
+        allowCredentials: true
+        maxAge: "24h"
+      timeout: 10s
+      retries:
+        attempts: 3
+        perTryTimeout: 3s
+        retryOn: >
+          connect-failure,
+          refused-stream,
+          reset,
+          5xx,
+          gateway-error
+      route:
+        - destination:
+            host: orders-api
+            port:
+              number: 80
+            subset: stable
+          weight: 100
+    - route:
+        - destination:
+            host: orders-api
+            port:
+              number: 80
+            subset: stable
+      timeout: 10s
