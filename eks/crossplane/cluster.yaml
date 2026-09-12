@@ -1,0 +1,50 @@
+apiVersion: eks.aws.m.upbound.io/v1beta1
+kind: Cluster
+metadata:
+  name: eks-${{ values.name }}-${{ values.environment }}
+  labels:
+    platform.example.com/cloud: aws
+    platform.example.com/application: ${{ values.name }}
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    region: ${{ values.region }}
+    version: ${{ values.kubernetesVersion }}
+    roleArn: ${{ values.roleArn }}
+    enabledClusterLogTypes: [api, audit, authenticator, controllerManager, scheduler]
+    encryptionConfig:
+      - provider:
+          - keyArn: CHANGE_ME_KMS_KEY_ARN
+        resources: [secrets]
+    vpcConfig:
+      - endpointPrivateAccess: true
+        endpointPublicAccess: false
+        subnetIds:
+{% for id in values.subnetIds %}          - ${{ id }}
+{% endfor %}    tags:
+      platform.example.com/owner: ${{ values.owner }}
+      platform.example.com/environment: ${{ values.environment }}
+  providerConfigRef:
+    name: aws-platform
+    kind: ClusterProviderConfig
+---
+apiVersion: eks.aws.m.upbound.io/v1beta1
+kind: NodeGroup
+metadata:
+  name: eks-${{ values.name }}-${{ values.environment }}-system
+spec:
+  forProvider:
+    clusterNameRef:
+      name: eks-${{ values.name }}-${{ values.environment }}
+    nodeRoleArn: ${{ values.roleArn }}
+    subnetIds:
+{% for id in values.subnetIds %}      - ${{ id }}
+{% endfor %}    scalingConfig:
+      - desiredSize: 2
+        minSize: 2
+        maxSize: 6
+    instanceTypes: [m7i.large]
+    capacityType: ON_DEMAND
+  providerConfigRef:
+    name: aws-platform
+    kind: ClusterProviderConfig

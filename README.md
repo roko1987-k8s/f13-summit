@@ -1,32 +1,37 @@
-# KIND Game — multiplayer demo
+# F13 Game — Backstage + Crossplane Platform Demo
 
-A small multiplayer arcade for a Kubernetes/Kind demo. Multiple phones connect to the same Go server. The host starts one global round; all players score concurrently; the big screen shows the live Top 5.
+Esta demo cuenta una historia completa de Platform Engineering alrededor de un pequeño juego multiplayer en Go para Kubernetes/Kind.
 
-## Run locally
+La idea es mostrar primero **la aplicación funcionando**, después **cómo Kubernetes la ejecuta y escala visualmente**, y finalmente **cómo Backstage abstrae el provisionamiento cloud con Crossplane**. Por tiempo, **Crossplane se muestra como parte de la arquitectura y se revisan sus manifiestos, pero no se ejecuta durante la charla**.
+
+## Orden de la demo
+
+### 1. La aplicación: multiplayer arcade
+
+La aplicación Go permite que varios teléfonos se conecten al mismo servidor. Un host inicia una ronda global, todos los jugadores puntúan al mismo tiempo y la pantalla principal muestra el Top 5 en tiempo real.
+
+Puntos clave para explicar:
+
+- Estado del juego en memoria.
+- Un único proceso/replica para mantener una sola partida.
+- SSE para enviar el estado en tiempo real a todos los navegadores.
+- Protección del host mediante `HOST_TOKEN`.
+- Anti-script mediante `MIN_HIT_INTERVAL_MS`.
+- Endpoint `/healthz` para Kubernetes.
+
+## 2. Ejecutar localmente
 
 ```bash
 go run .
-# or, without Go installed:
+# o
+
 docker build -t kind-game:local . && docker run --rm -p 8080:8080 kind-game:local
 ```
 
-- Players: `http://localhost:8080/`
-- Host (big screen): `http://localhost:8080/#host`
+- Jugadores: `http://localhost:8080/`
+- Host: `http://localhost:8080/#host`
 
-Phones on the same Wi‑Fi can use `http://<YOUR-LAN-IP>:8080/`. The host screen shows a QR code with that URL in the header.
-
-## Configuration
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8080` | HTTP port |
-| `GAME_DURATION` | `30` | Round length in seconds |
-| `HOST_TOKEN` | *(empty)* | If set, `/api/start` and `/api/reset` require it. The host opens `/#host=<token>`. **Set it for the live event.** |
-| `BROADCAST_INTERVAL_MS` | `150` | How often the state is pushed to browsers |
-| `MIN_HIT_INTERVAL_MS` | `40` | Minimum time between two counted taps per player (anti‑script) |
-| `STATIC_DIR` | `./static` | Frontend directory |
-
-## Build and run in Kind
+## 3. Desplegar la app en Kind
 
 ```bash
 kind create cluster --name game
@@ -34,95 +39,176 @@ kind create cluster --name game
 docker build -t kind-game:local .
 kind load docker-image kind-game:local --name game
 
-kubectl create secret generic kind-game --from-literal=hostToken=$(openssl rand -hex 8)
+kubectl create secret generic kind-game \\
+  --from-literal=hostToken=$(openssl rand -hex 8)
+
 kubectl apply -f k8s/deployment.yaml
 kubectl port-forward svc/kind-game 8080:80
 ```
 
-Then:
-- Big screen: `http://localhost:8080/#host=<token>`
-- Phones: `http://<YOUR-LAN-IP>:8080/`
+En esta parte se enseña Kubernetes de forma visible: Deployment, Service, Secret y, según el escenario, Ingress.
 
-For phones to reach the service, expose it through your laptop's LAN IP or an ingress/tunnel. `kubectl port-forward` is convenient for testing from the same machine, but phones on the LAN normally need a reachable host/NodePort/Ingress. `k8s/ingress.yaml` has an example with cert‑manager and the nginx annotations SSE needs.
+> Para teléfonos en la misma Wi‑Fi, el servicio debe quedar accesible desde la red local. `kubectl port-forward` sirve para pruebas en la misma máquina; para el evento conviene usar NodePort, Ingress o un túnel accesible desde la LAN.
 
-## Publish the image and deploy to Cloud Run
+## 4. La parte que hace "wow": simulación de autoscaling
 
-The image must be `linux/amd64` for Cloud Run. The Dockerfile cross‑compiles, so it builds on Apple Silicon without emulation:
+La pantalla del juego representa un mini cluster Kubernetes y muestra visualmente el tráfico entrando al Gateway y llegando a los pods.
 
-```bash
-podman build --platform linux/amd64 -t docker.io/rcronald/f13-game:latest .
-podman push docker.io/rcronald/f13-game:latest
+```text
+Client
+  │
+  ▼
+Kubernetes Cluster
+  │
+  ▼
+Gateway (kgateway) + HTTPRoute
+  ├── 90% → Service stable → Pods v1
+  └── 10% → Service canary → Pods v2
 ```
 
-Cloud Run settings that matter for this app (state lives in memory and every phone keeps an SSE connection open):
+Los taps generan tráfico y la interfaz simula:
 
-| Setting | Value | Why |
-|---------|-------|-----|
-| Container port | `8080` | the app also honours `$PORT` |
-| Env `HOST_TOKEN` | a secret | protects START/RESET |
-| Min / max instances | `1` / **`1`** | one game state; two instances = two games |
-| Max concurrent requests per instance | `1000` | each player holds one SSE request; default 80 would cap the room |
-| Request timeout | `3600` s | SSE streams are long requests |
-| CPU allocation | always allocated | round timer and broadcaster run between requests |
-| Authentication | allow unauthenticated | players and host are anonymous |
+- HPA por request/sec.
+- Incremento y reducción de replicas.
+- Pods pasando de `ContainerCreating` a `Running`.
+- CPU por pod.
+- Eventos estilo Kubernetes.
+- Canary 90/10.
+- Escalamiento del cluster según los jugadores conectados.
 
-Equivalent CLI:
+Importante: esta parte es principalmente **visual para la experiencia de la charla**; el servidor del juego sigue concentrado en el conteo de puntos.
 
-```bash
-gcloud run deploy f13-game --image docker.io/rcronald/f13-game:latest \
-  --port 8080 --set-env-vars HOST_TOKEN=secreto \
-  --min-instances 1 --max-instances 1 --concurrency 1000 --timeout 3600 \
-  --no-cpu-throttling --allow-unauthenticated --region us-central1
+## 5. Conectar la historia con Platform Engineering
+
+Aquí aparece la pregunta natural:
+
+> "¿Y quién crea todo esto para un developer?"
+
+La respuesta de la demo es **Backstage**.
+
+El developer no tiene que conocer todos los YAML ni todos los detalles de cada cloud. En Backstage selecciona una intención de plataforma, por ejemplo:
+
+```text
+Application: f13-game
+Team: platform-team
+Environment: demo
+Cloud: Azure / AWS / GCP
+Network Policy: ON
+Private Cluster: ON
+Autoscaling: ON
+Vault: ON
 ```
 
-## Game rules
+## 6. Backstage → Crossplane
 
-- Players join with a name or random name (max 20 characters, unique, case‑insensitive).
-- Nobody can join while a round is running.
-- Host clicks START; every phone starts at the same time.
-- Each tap adds one point. Taps faster than `MIN_HIT_INTERVAL_MS` are ignored.
-- Score updates are pushed to every connected browser using Server‑Sent Events (SSE).
-- After the round, the Top 5 stays on the host screen. START again for a new round (scores reset, players stay). RESET clears everyone.
+Backstage Scaffolder genera un repositorio con:
 
-## API
+- manifiestos Kubernetes del workload;
+- guardrails de plataforma;
+- manifestos Crossplane para el cloud seleccionado;
+- configuración preparada para Vault;
+- `catalog-info.yaml` para registrar el componente en Backstage.
 
-| Method | Path | Notes |
-|--------|------|-------|
-| `POST` | `/api/join` | `{"name": "..."}` → player + `epoch`. `409 name_taken` / `409 game_running` |
-| `POST` | `/api/score?id=` | `{"score", "accepted"}`. `404` if the player no longer exists |
-| `POST` | `/api/start` | host only |
-| `POST` | `/api/reset` | host only |
-| `GET` | `/api/state?id=` | full snapshot; with `id`, includes `me` |
-| `GET` | `/api/events?id=` | SSE stream (light snapshot: game, top 5, counters, `hitsPerSecond`) |
-| `GET` | `/api/qr.png?url=` | QR for the host screen |
-| `GET` | `/healthz` | probes |
+La arquitectura conceptual es:
 
-## Tests and load test
-
-```bash
-go test -race ./...
-k6 run load-test.js                       # 500 players × ~10 taps/s
-k6 run -e HOST_TOKEN=secret load-test.js  # when HOST_TOKEN is set
+```text
+Developer
+   │
+   ▼
+Backstage
+   │
+   │ Scaffolder
+   ▼
+GitHub Repository
+   │
+   ├── Kubernetes manifests
+   └── Crossplane manifests
+          │
+          ▼
+      Crossplane
+       ├── Azure → AKS
+       ├── AWS   → EKS
+       └── GCP   → GKE
 ```
 
-## Autoscaling simulation (player screen)
+## 7. Crossplane — solo se muestra, no se ejecuta
 
-The arena is a mini cluster drawn like the diagram used in the talk, so a Kubernetes audience recognises it at a glance:
+**Por tiempo, esta parte NO se ejecuta en vivo.**
 
+La demostración termina mostrando los manifiestos generados y explicando el contrato:
+
+> "Este YAML no es Terraform. Es una API declarativa de Kubernetes. Backstage genera la intención y Crossplane sería quien reconciliaría esa intención contra Azure, AWS o GCP."
+
+Se pueden abrir rápidamente estos archivos:
+
+```text
+aks/crossplane/cluster.yaml
+eks/crossplane/cluster.yaml
+gke/crossplane/cluster.yaml
+crossplane/provider-configs/azure.yaml
+crossplane/provider-configs/aws.yaml
+crossplane/provider-configs/gcp.yaml
 ```
-Client (the player's web)
-  └─ Kubernetes Cluster (kind)
-       Gateway (kgateway) + HTTPRoute
-         ├─ Service stable (90 %) → Pods v1
-         └─ Service canary (10 %) → Pods v2
+
+No se requiere instalar providers ni crear infraestructura cloud durante la charla.
+
+## 8. Vault como capa de secretos
+
+La plataforma asume un Vault disponible en:
+
+`https://hashicorpvault.josua.com.pe`
+
+Los manifests de ejemplo dejan preparada la integración mediante los recursos de autenticación/secretos de Vault.
+
+La idea para explicar es:
+
+```text
+Backstage
+   │
+   ▼
+GitHub
+   │
+   ▼
+Kubernetes
+   │
+   ▼
+Vault
+   │
+   ▼
+Application Secret
 ```
 
-Every accepted tap is a request that hops client → gateway → route → service → pod (the links animate while there is traffic); the HTTPRoute sends 90 % to stable and 10 % to canary, and each group scales with its share of the traffic (v1 up to 9 pods, v2 up to 3). Pods get fun local names (`cuy-turbo`, `ceviche-picante`, `llama-ninja`…) from the `POD_NOUNS` / `POD_ADJECTIVES` lists. On phones the tap button sits above the cluster so it is always visible; the diagram reads top‑down on both screens. A client‑side HPA computes req/s over a 2 s window and scales each group (target 2.5 req/s per pod, 12 pods in total): it scales up one pod every 350 ms while load is high (pods appear as `ContainerCreating` and then `Running`), and scales down one pod every 1.2 s after 1.5 s without traffic. CPU per pod, replicas and the last Kubernetes‑style event are shown live. On the player screen it is purely visual — the server only counts points. The host screen shows the same cluster fed by the **whole room**: the server reports `hitsPerSecond` (accepted taps over the last 2 s, counted in 100 ms buckets) in every snapshot, and the host HPA adapts its per‑pod target to the number of players (`max(3, players × 6 / 12)`) so the cluster hits 12 replicas when everyone taps. Tunables live in `createCluster()` in `static/app.js`.
+No se colocan secretos reales dentro del repositorio.
 
-## Brand
+## 9. Mensaje final
 
-The UI follows the identity of [f13.pe](https://www.f13.pe/): lime `#c7f241` on dark `#262626`, accents teal `#6accc2`, pink `#e62b6e` and purple `#9e80e5`, Space Grotesk for body text and Space Mono for headings, labels and numbers (both OFL, self‑hosted in `static/fonts/` so the game works offline at the venue). The official 2nd‑edition logo lives in `static/assets/f13-logo.png` and the pixel‑square motif is reused as favicon and decoration.
+La historia de la demo queda resumida así:
 
-## Important demo limitation
+```text
+Backstage = Developer Experience
+Crossplane = Infrastructure Orchestration
+Kubernetes = Runtime
+Vault = Secrets
+GitHub = Source of Truth
+```
 
-State is intentionally in memory and the deployment is one replica. This is ideal for a live Kind demo. If you want to scale to multiple replicas, add Redis for shared scores/game state and Redis Pub/Sub (or a WebSocket/SSE gateway) so every pod broadcasts the same events.
+### Frase para cerrar
+
+> **"El developer pide una capacidad. Backstage le da el camino dorado. Kubernetes ejecuta el workload. Crossplane puede encargarse de la infraestructura y Vault de los secretos. La complejidad queda detrás de la plataforma."**
+
+## Configuración principal de la app
+
+| Variable | Default | Descripción |
+|----------|---------|-------------|
+| `PORT` | `8080` | Puerto HTTP |
+| `GAME_DURATION` | `30` | Duración de la ronda |
+| `HOST_TOKEN` | *(vacío)* | Protege START/RESET |
+| `BROADCAST_INTERVAL_MS` | `150` | Frecuencia de broadcast |
+| `MIN_HIT_INTERVAL_MS` | `40` | Intervalo mínimo entre taps contados |
+| `STATIC_DIR` | `./static` | Directorio frontend |
+
+## Cloud Run (opcional)
+
+La app también puede publicarse en Cloud Run, pero para esta charla el foco principal es **Kind + Kubernetes + Backstage + Crossplane**.
+
+Como el estado está en memoria, cualquier despliegue que requiera una única partida debe mantener una sola instancia. Para una evolución real a múltiples replicas habría que mover el estado y la propagación de eventos a una capa compartida, por ejemplo Redis.

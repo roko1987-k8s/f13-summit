@@ -1,0 +1,56 @@
+apiVersion: azure.m.upbound.io/v1beta1
+kind: ResourceGroup
+metadata:
+  name: ${{ values.resourceGroupName }}
+  annotations:
+    crossplane.io/external-name: ${{ values.resourceGroupName }}
+spec:
+  forProvider:
+    location: ${{ values.region }}
+    tags:
+      platform.example.com/owner: ${{ values.owner }}
+      platform.example.com/environment: ${{ values.environment }}
+  providerConfigRef:
+    name: azure-platform
+---
+apiVersion: containerservice.azure.m.upbound.io/v1beta1
+kind: KubernetesCluster
+metadata:
+  name: aks-${{ values.name }}-${{ values.environment }}
+  labels:
+    platform.example.com/cloud: azure
+    platform.example.com/application: ${{ values.name }}
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    location: ${{ values.region }}
+    kubernetesVersion: ${{ values.kubernetesVersion }}
+    resourceGroupNameRef:
+      name: ${{ values.resourceGroupName }}
+    dnsPrefix: ${{ values.name }}-${{ values.environment }}
+    roleBasedAccessControlEnabled: true
+    oidcIssuerEnabled: true
+    workloadIdentityEnabled: true
+    privateClusterEnabled: ${{ values.enablePrivateCluster }}
+    defaultNodePool:
+      name: system
+      vmSize: ${{ values.nodeVmSize }}
+      nodeCount: 2
+      minCount: 2
+      maxCount: 6
+      enableAutoScaling: ${{ values.enableAutoscaling }}
+      zones: ["1", "2", "3"]
+    identity:
+      type: SystemAssigned
+    networkProfile:
+      networkPlugin: azure
+      networkPolicy: azure
+      loadBalancerSku: standard
+      outboundType: loadBalancer
+    azurePolicyEnabled: true
+    httpApplicationRoutingEnabled: false
+    tags:
+      platform.example.com/owner: ${{ values.owner }}
+      platform.example.com/environment: ${{ values.environment }}
+  providerConfigRef:
+    name: azure-platform

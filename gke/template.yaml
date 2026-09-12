@@ -1,0 +1,129 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: platform-gke-crossplane
+  title: Provision GKE Platform with Crossplane
+  description: Golden path to provision a managed Kubernetes platform using Backstage and Crossplane.
+  tags: [gke, kubernetes, crossplane, platform-engineering, vault]
+spec:
+  owner: platform-team
+  type: service
+  parameters:
+    - title: Application
+      required: [name, owner, environment]
+      properties:
+        name:
+          title: Application name
+          type: string
+          pattern: '^[a-z0-9-]{3,32}$'
+        owner:
+          title: Team
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        environment:
+          title: Environment
+          type: string
+          enum: [dev, staging, prod]
+    - title: GKE platform
+      required: [region]
+      properties:
+        region:
+          title: Region / Location
+          type: string
+          default: us-east-2
+        kubernetesVersion:
+          title: Kubernetes version
+          type: string
+          default: '1.31'
+        enablePrivateCluster:
+          title: Private control plane
+          type: boolean
+          default: true
+        enableAutoscaling:
+          title: Autoscaling
+          type: boolean
+          default: true
+        projectId:
+          title: GCP project ID
+          type: string
+        network:
+          title: VPC network
+          type: string
+          default: platform-vpc
+        subnetwork:
+          title: VPC subnetwork
+          type: string
+          default: platform-subnet
+    - title: Secrets
+      required: [vaultPath]
+      properties:
+        vaultPath:
+          title: Vault secret path
+          type: string
+          default: platform/${{ parameters.name }}
+    - title: Platform capabilities
+      properties:
+        enableNetworkPolicy:
+          title: NetworkPolicy
+          type: boolean
+          default: true
+        enableVault:
+          title: Vault integration
+          type: boolean
+          default: true
+    - title: Identity
+      properties:
+        workloadIdentityClientId:
+          title: Workload identity client ID (optional)
+          type: string
+          default: CHANGE_ME
+  steps:
+    - id: fetch
+      name: Generate platform repo
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          environment: ${{ parameters.environment }}
+          cloud: gke
+          region: ${{ parameters.region }}
+          kubernetesVersion: ${{ parameters.kubernetesVersion }}
+          enablePrivateCluster: ${{ parameters.enablePrivateCluster }}
+          enableAutoscaling: ${{ parameters.enableAutoscaling }}
+          enableNetworkPolicy: ${{ parameters.enableNetworkPolicy }}
+          enableVault: ${{ parameters.enableVault }}
+          vaultPath: ${{ parameters.vaultPath }}
+          workloadIdentityClientId: ${{ parameters.workloadIdentityClientId }}
+          subscriptionId: ${{ parameters.subscriptionId | default('') }}
+          resourceGroupName: ${{ parameters.resourceGroupName | default('') }}
+          nodeVmSize: ${{ parameters.nodeVmSize | default('') }}
+          roleArn: ${{ parameters.roleArn | default('') }}
+          subnetIds: ${{ parameters.subnetIds | default([]) }}
+          projectId: ${{ parameters.projectId | default('') }}
+          network: ${{ parameters.network | default('') }}
+          subnetwork: ${{ parameters.subnetwork | default('') }}
+    - id: publish
+      name: Publish repository
+      action: publish:github
+      input:
+        description: ${{ parameters.name }} platform infrastructure via Crossplane
+        defaultBranch: main
+        repoUrl: github.com?owner=platform-engineering&repo=${{ parameters.name }}-gke
+    - id: register
+      name: Register in Backstage
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Catalog entity
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
