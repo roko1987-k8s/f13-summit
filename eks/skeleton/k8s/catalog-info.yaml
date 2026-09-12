@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  description: ${{ values.cloud | upper }} platform workload provisioned by Backstage + Crossplane
+  annotations:
+    platform.example.com/cloud: ${{ values.cloud }}
+    platform.example.com/environment: ${{ values.environment }}
+spec:
+  type: service
+  lifecycle: ${{ values.environment }}
+  owner: ${{ values.owner }}
+  system: platform
