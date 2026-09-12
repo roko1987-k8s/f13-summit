@@ -3,26 +3,49 @@ kind: Deployment
 metadata:
   name: kind-game
 spec:
+  # El estado vive en memoria: mantener UNA réplica.
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels: {app: kind-game}
   template:
     metadata:
       labels: {app: kind-game}
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
       containers:
       - name: kind-game
-        image: kind-game:latest
+        image: kind-game:local
         imagePullPolicy: IfNotPresent
         env:
+        - name: PORT
+          value: "8080"
         - name: GAME_DURATION
           value: "30"
+        # kubectl create secret generic kind-game --from-literal=hostToken=<token>
+        - name: HOST_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: kind-game
+              key: hostToken
+              optional: true
         ports:
-        - containerPort: 443
+        - containerPort: 8080
+        resources:
+          requests: {cpu: 100m, memory: 64Mi}
+          limits: {memory: 256Mi}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
         readinessProbe:
-          httpGet: {path: /api/state, port: 443}
+          httpGet: {path: /healthz, port: 8080}
         livenessProbe:
-          httpGet: {path: /api/state, port: 443}
+          httpGet: {path: /healthz, port: 8080}
 ---
 apiVersion: v1
 kind: Service
@@ -31,6 +54,6 @@ metadata:
 spec:
   selector: {app: kind-game}
   ports:
-  - port: 443
-    targetPort: 443
+  - port: 80
+    targetPort: 8080
   type: ClusterIP

@@ -1,0 +1,8 @@
+Fuentes utilizadas por el juego, ambas bajo la SIL Open Font License 1.1
+(https://openfontlicense.org/):
+
+- Space Grotesk — © Florian Karsten. https://github.com/floriankarsten/space-grotesk
+- Space Mono   — © Colophon Foundry / Google Fonts. https://github.com/googlefonts/spacemono
+
+Son las mismas tipografías que usa https://www.f13.pe/. Se sirven desde este
+directorio para que el juego funcione sin acceso a Internet en el lugar del evento.

@@ -4,6 +4,9 @@ metadata:
   name: kind-game
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    # SSE: sin buffering y con timeouts largos para el stream.
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
 spec:
   tls:
     - hosts:
@@ -19,4 +22,4 @@ spec:
               service:
                 name: kind-game
                 port:
-                  number: 443
+                  number: 80
