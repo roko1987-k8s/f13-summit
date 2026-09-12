@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: utec
+  labels:
+    app: utec
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: utec
+  template:
+    metadata:
+      labels:
+        app: utec
+    spec:
+      containers:
+      - name: utec
+        image: kind-game:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: GAME_DURATION
+          value: "30"
+        ports:
+        - containerPort: 443
+        readinessProbe:
+          httpGet: {path: /api/state, port: 443}
+        livenessProbe:
+          httpGet: {path: /api/state, port: 443}
