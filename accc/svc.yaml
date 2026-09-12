@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: accc
+  labels:
+    app: accc
+spec:
+  selector:
+    app: accc
+  ports:
+  - port: 443
+    targetPort: 443
+  type: ClusterIP
