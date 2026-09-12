@@ -1,0 +1,7 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: bbbb
+  namespace: bbbb
+spec:
+  host: bbbb
