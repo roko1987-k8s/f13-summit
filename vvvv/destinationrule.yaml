@@ -1,0 +1,7 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: vvvv
+  namespace: vvvv
+spec:
+  host: vvvv
