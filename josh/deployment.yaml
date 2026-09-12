@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: josh
+  labels:
+    app: josh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: josh
+  template:
+    metadata:
+      labels:
+        app: josh
+    spec:
+      containers:
+      - name: josh
+        image: kind-game:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: GAME_DURATION
+          value: "30"
+        ports:
+        - containerPort: 443
+        readinessProbe:
+          httpGet: {path: /api/state, port: 443}
+        livenessProbe:
+          httpGet: {path: /api/state, port: 443}
